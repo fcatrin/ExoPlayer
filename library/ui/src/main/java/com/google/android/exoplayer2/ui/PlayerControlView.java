@@ -308,7 +308,7 @@ public class PlayerControlView extends FrameLayout {
 
     durationView = findViewById(R.id.exo_duration);
     positionView = findViewById(R.id.exo_position);
-    timeBar = findViewById(R.id.exo_progress);
+    timeBar = (TimeBar)findViewById(R.id.exo_progress);
     if (timeBar != null) {
       timeBar.addListener(componentListener);
     }
