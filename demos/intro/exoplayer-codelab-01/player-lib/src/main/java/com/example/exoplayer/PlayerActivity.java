@@ -50,7 +50,7 @@ public class PlayerActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_player);
 
-    playerView = findViewById(R.id.video_view);
+    playerView = (SimpleExoPlayerView)findViewById(R.id.video_view);
   }
 
   @Override
