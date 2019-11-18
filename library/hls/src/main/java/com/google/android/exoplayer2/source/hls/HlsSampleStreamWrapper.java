@@ -647,43 +647,17 @@ import java.util.Arrays;
   public TrackOutput track(int id, int type) {
     int trackCount = sampleQueues.length;
 
-    // Audio and video tracks are handled manually to ignore ids.
-    if (type == C.TRACK_TYPE_AUDIO) {
-      if (audioSampleQueueIndex != C.INDEX_UNSET) {
-        if (audioSampleQueueMappingDone) {
-          return sampleQueueTrackIds[audioSampleQueueIndex] == id
-              ? sampleQueues[audioSampleQueueIndex]
-              : createDummyTrackOutput(id, type);
-        }
-        audioSampleQueueMappingDone = true;
-        sampleQueueTrackIds[audioSampleQueueIndex] = id;
-        return sampleQueues[audioSampleQueueIndex];
-      } else if (tracksEnded) {
-        return createDummyTrackOutput(id, type);
-      }
-    } else if (type == C.TRACK_TYPE_VIDEO) {
-      if (videoSampleQueueIndex != C.INDEX_UNSET) {
-        if (videoSampleQueueMappingDone) {
-          return sampleQueueTrackIds[videoSampleQueueIndex] == id
-              ? sampleQueues[videoSampleQueueIndex]
-              : createDummyTrackOutput(id, type);
-        }
-        videoSampleQueueMappingDone = true;
-        sampleQueueTrackIds[videoSampleQueueIndex] = id;
-        return sampleQueues[videoSampleQueueIndex];
-      } else if (tracksEnded) {
-        return createDummyTrackOutput(id, type);
-      }
-    } else /* sparse track */ {
-      for (int i = 0; i < trackCount; i++) {
+    for (int i = 0; i < trackCount; i++) {
         if (sampleQueueTrackIds[i] == id) {
-          return sampleQueues[i];
+            return sampleQueues[i];
         }
-      }
-      if (tracksEnded) {
-        return createDummyTrackOutput(id, type);
-      }
     }
+
+    if (tracksEnded) {
+        Log.w(TAG, "Unmapped track with id " + id + " of type " + type);
+        return new DummyTrackOutput();
+    }
+    
     SampleQueue trackOutput = new SampleQueue(allocator);
     trackOutput.setSampleOffsetUs(sampleOffsetUs);
     trackOutput.setUpstreamFormatChangeListener(this);
@@ -695,13 +669,7 @@ import java.util.Arrays;
     sampleQueueIsAudioVideoFlags[trackCount] = type == C.TRACK_TYPE_AUDIO
         || type == C.TRACK_TYPE_VIDEO;
     haveAudioVideoSampleQueues |= sampleQueueIsAudioVideoFlags[trackCount];
-    if (type == C.TRACK_TYPE_AUDIO) {
-      audioSampleQueueMappingDone = true;
-      audioSampleQueueIndex = trackCount;
-    } else if (type == C.TRACK_TYPE_VIDEO) {
-      videoSampleQueueMappingDone = true;
-      videoSampleQueueIndex = trackCount;
-    }
+
     sampleQueuesEnabledStates = Arrays.copyOf(sampleQueuesEnabledStates, trackCount + 1);
     return trackOutput;
   }
