@@ -260,8 +260,12 @@ public final class Util {
    */
   public static String normalizeLanguageCode(String language) {
     try {
+      Log.d("ISO", "lang: " + language);
       return language == null ? null : new Locale(language).getISO3Language();
     } catch (MissingResourceException e) {
+      return toLowerInvariant(language);
+    } catch (Exception e) {
+      Log.e("ExoPlayer", "Cannot parse language " + language);
       return toLowerInvariant(language);
     }
   }
